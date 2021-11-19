@@ -1,18 +1,15 @@
-let Bot = function(){
-    
-}
-
-
-
-
+/*
 let isntEmpty = function(obj){
     for(let key in obj){
         return true;
     }
     return false;
+};*/
+
+
+let min = function(a,b){
+    return a < b ? a : b;
 };
-
-
 
 
 
@@ -41,27 +38,28 @@ let Cmds = function(str){
             this.tops.push(cb);
         }
     };
-    this.getCmdName = function(str){
-        maxsublen;
-        //consume empty spaces
-        let i = 0;
-        while(str[i] === " " && i < str.length){
-            i++;
-        }
-        let a = i;
-        while(str[i] !== " " && i < str.length){
-            if(i-a === maxsublen){
-                
-            }
-        }
-    };
+    
     this.call = function(msg,substr){
         this.always.map(cb=>cb(msg,substr));
-        
-        if(isntEmpty(this.subcmds) && ){//
-            
+        //parsing the substr
+        let b = substr.match(/^\s+/).length;
+        let token;
+        let ii = 0;
+        for(let i = b; i < min(substr.length,b+maxsublen); i++){
+            if(substr[i].match(/^\s/)){//found the limit
+                ii = i;
+                token = substr.slice(b,ii);
+            }else if(i+1 === substr.length){
+                //end of the string, token found
+                ii = i+1;
+                token = substr.slice(b,ii);
+            }
+        }
+        if(token && token in this.subcmds){//sub command found
+            let substr1 = substr.slice(ii);
+            this.subcmds[token].call(msg,substr1);
         }else{
-            
+            this.always.map(cb=>cb(msg,substr));
         }
     };
     
