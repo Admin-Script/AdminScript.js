@@ -52,7 +52,7 @@ let consumeSpaces = function(str,i){
 };
 
 
-let parseFunctionCall = function(str,i){
+let parseClassicalFunctionCall = function(str,i){
     try{
         
         var [funcname,i] = parseIdentifier(str,i);
@@ -65,7 +65,9 @@ let parseFunctionCall = function(str,i){
             var [time, i] = consumeRegex(str,i,/[^\)]/,"\\");
             args.push(time);
         }else{
-            
+            while(){
+                
+            }
         }
         
         
@@ -73,6 +75,16 @@ let parseFunctionCall = function(str,i){
         throw err;
     }
 };
+
+let firstClassExpr = function(str,i){
+    return [
+        operatorExpr,
+        funcExpr,
+        funcParenExpr,
+        execExpr // $()
+    ]
+};
+//let первоклассное выражение
 
 parseFunction("asdfadf() fa dk",0);
 
