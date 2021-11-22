@@ -2,7 +2,7 @@
 
 class TrieMatch{
     //public
-    chars = {};
+    const chars = {};
     
     constructor(arr){
         if(arr){
@@ -29,15 +29,13 @@ class TrieMatch{
     }
     
     maxMatch(str,i){// [word, i1]
-        if(i >= str.length){
+        if(i >== str.length){
             return ["",i];
         }
         let chars = this.chars;
         let char = str[i];
         if(char in chars){
-            let result;
-            [result,i] = chars[char].maxMatch(str,i+1);
-            return [char+result,i];
+            return chars[char].maxMatch(str,i+1);
         }else{
             return ["",i];
         }
