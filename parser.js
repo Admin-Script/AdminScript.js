@@ -76,13 +76,35 @@ let parseClassicalFunctionCall = function(str,i){
     }
 };
 
+let processCandidates = function(candidates,str,i){
+    let lastError;
+    for(let j = 0; j < candidates.length; j++){
+        let cand = candidates[j];
+        try{
+            return cand(str,i);
+        }catch(err){
+            lastError = err;
+        }
+    }
+    throw lastError;
+};
+
 let firstClassExpr = function(str,i){
-    return [
-        operatorExpr,
-        funcExpr,
-        funcParenExpr,
-        execExpr // $()
-    ]
+    try{
+        let ast;
+        [i,ast] = processCandidates([
+            operatorExpr,
+            funcExpr,
+            funcParenExpr,
+            execExpr // $()
+        ],str,i);
+        return {
+            type:"expr",
+            ast
+        }
+    }catch(err){
+        throw err;
+    }
 };
 //let первоклассное выражение
 
