@@ -182,6 +182,72 @@ console.log(JSON.stringify(operatorExpr(`
     # equal signs are left associative, 
     # others are right associative
     line2 = a = b:c|d!e 
+    line3 && true
     # for more info, look at operators.js
 `,0)));
+
+// result
+/*
+{
+    "type": "operator",
+    "value": "\n",
+    "left": {
+        "type": "operator",
+        "value": "=",
+        "left": "line1",
+        "right": {
+            "type": "operator",
+            "value": "+",
+            "left": {
+                "type": "operator",
+                "value": "*",
+                "left": "asdf",
+                "right": "sa"
+            },
+            "right": {
+                "type": "operator",
+                "value": "/",
+                "left": "a",
+                "right": "b"
+            }
+        }
+    },
+    "right": {
+        "type": "operator",
+        "value": "\n",
+        "left": {
+            "type": "operator",
+            "value": "=",
+            "left": "line2",
+            "right": {
+                "type": "operator",
+                "value": "=",
+                "left": "a",
+                "right": {
+                    "type": "operator",
+                    "value": "!",
+                    "left": {
+                        "type": "operator",
+                        "value": "|",
+                        "left": {
+                            "type": "operator",
+                            "value": ":",
+                            "left": "b",
+                            "right": "c"
+                        },
+                        "right": "d"
+                    },
+                    "right": "e"
+                }
+            }
+        },
+        "right": {
+            "type": "operator",
+            "value": "&&",
+            "left": "line3",
+            "right": "true"
+        }
+    }
+}
+*/
 
