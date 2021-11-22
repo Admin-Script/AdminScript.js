@@ -130,6 +130,24 @@ let operatorExpr = function(str,i){
             //console.log(err,i,i0);
             return [lefthand,i0];
         }
+        
+        let assignContainer = {
+            right:lefthand
+        };
+        let wrapper = assignContainer;
+        let expression = lefthand;
+        while(expression.type === "operator" && comptoken(expression.value,optoken)){
+            wrapper = expression;
+            expression = expression.right;
+        }
+        wrapper.right = {
+            type:"operator",
+            value:optoken,
+            left:expression,
+            right:atom
+        };
+        lefthand = assignContainer.right;
+        /*// buggy code, no deep replacement
         if(lefthand.type === "operator" && comptoken(lefthand.value,optoken)){
             //decompose the left token
             let ast1 = {
@@ -152,7 +170,7 @@ let operatorExpr = function(str,i){
                 left:lefthand,
                 right:atom
             }
-        }
+        }*/
     }
 };
 
@@ -161,7 +179,8 @@ console.log(JSON.stringify(operatorExpr(`
     # test code
     # comments will be ignored
     line1 = asdf * sa + a / b
-    # equal signs are left associative, others are right associative
+    # equal signs are left associative, 
+    # others are right associative
     line2 = a = b:c|d!e 
     # for more info, look at operators.js
 `,0)));
