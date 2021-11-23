@@ -103,6 +103,7 @@ let matchOperator = function(str,i){
             err("expected operator but not found");
         }
     }
+    if(i === str.length && optoken === "\n")err();//trailing new lines
     
     return [optoken,i];
 };
@@ -125,10 +126,14 @@ let operatorExpr = function(str,i){
         let i0 = i;
         try{
             [optoken,i] = matchOperator(str,i);//matches the spaces as well
-            [atom,i] = atomicExpr(str,i);
-        }catch(err){
-            //console.log(err,i,i0);
+        }catch(err){//end of the sequence
             return [lefthand,i0];
+        }
+        try{
+            [atom,i] = atomicExpr(str,i);
+        }catch(error){//definitely got something odd here
+            console.log(`"${optoken}"`,str.length,i);
+            err("Expected atomic expression, but got something else instead. Are you chaining operaotrs?");
         }
         
         let assignContainer = {
@@ -174,6 +179,7 @@ let operatorExpr = function(str,i){
     }
 };
 
+console.log(operators.precedenceTable);
 
 console.log(JSON.stringify(operatorExpr(`
     # test code
@@ -181,7 +187,7 @@ console.log(JSON.stringify(operatorExpr(`
     line1 = asdf * sa + a / b
     # equal signs are left associative, 
     # others are right associative
-    line2 = a = b:c|d!e 
+    line2 = a = b:c| ||d!e 
     line3 && true
     # for more info, look at operators.js
 `,0)));

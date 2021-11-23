@@ -103,6 +103,7 @@ let matchOperator = function(str,i){
             err("expected operator but not found");
         }
     }
+    if(i === str.length && optoken === "\n")err();//trailing new lines
     
     return [optoken,i];
 };
@@ -125,10 +126,14 @@ let operatorExpr = function(str,i){
         let i0 = i;
         try{
             [optoken,i] = matchOperator(str,i);//matches the spaces as well
-            [atom,i] = atomicExpr(str,i);
-        }catch(err){
-            //console.log(err,i,i0);
+        }catch(err){//end of the sequence
             return [lefthand,i0];
+        }
+        try{
+            [atom,i] = atomicExpr(str,i);
+        }catch(error){//definitely got something odd here
+            console.log(`"${optoken}"`,str.length,i);
+            err("Expected atomic expression, but got something else instead. Are you chaining operaotrs?");
         }
         
         let assignContainer = {
@@ -147,32 +152,37 @@ let operatorExpr = function(str,i){
             right:atom
         };
         lefthand = assignContainer.right;
-        /*// buggy code, no deep replacement
-        if(lefthand.type === "operator" && comptoken(lefthand.value,optoken)){
-            //decompose the left token
-            let ast1 = {
-                type:"operator",
-                value:optoken,
-                left:lefthand.right,
-                right:atom
-            }
-            lefthand = {
-                type:"operator",
-                value:lefthand.value,
-                left:lefthand.left,
-                right:ast1
-            }
-        }else{
-            //preserve the left token
-            lefthand = {
-                type:"operator",
-                value:optoken,
-                left:lefthand,
-                right:atom
-            }
-        }*/
     }
 };
+
+
+
+
+//atomicExpr
+
+/*
+let atomicExpr = function(str,i){
+    let ast;
+    [ast,i] = processCandidates([
+        operatorExpr,
+        funcExpr,
+        execExpr, // $()
+        atomicExpr//tokens, parenfunc etc
+    ],str,i);
+    return [{
+        type:"expr",
+        ast
+    },i];
+};
+*/
+
+
+
+
+
+
+
+
 
 
 console.log(JSON.stringify(operatorExpr(`
@@ -186,68 +196,7 @@ console.log(JSON.stringify(operatorExpr(`
     # for more info, look at operators.js
 `,0)));
 
-// result
-/*
-{
-    "type": "operator",
-    "value": "\n",
-    "left": {
-        "type": "operator",
-        "value": "=",
-        "left": "line1",
-        "right": {
-            "type": "operator",
-            "value": "+",
-            "left": {
-                "type": "operator",
-                "value": "*",
-                "left": "asdf",
-                "right": "sa"
-            },
-            "right": {
-                "type": "operator",
-                "value": "/",
-                "left": "a",
-                "right": "b"
-            }
-        }
-    },
-    "right": {
-        "type": "operator",
-        "value": "\n",
-        "left": {
-            "type": "operator",
-            "value": "=",
-            "left": "line2",
-            "right": {
-                "type": "operator",
-                "value": "=",
-                "left": "a",
-                "right": {
-                    "type": "operator",
-                    "value": "!",
-                    "left": {
-                        "type": "operator",
-                        "value": "|",
-                        "left": {
-                            "type": "operator",
-                            "value": ":",
-                            "left": "b",
-                            "right": "c"
-                        },
-                        "right": "d"
-                    },
-                    "right": "e"
-                }
-            }
-        },
-        "right": {
-            "type": "operator",
-            "value": "&&",
-            "left": "line3",
-            "right": "true"
-        }
-    }
-}
-*/
+
+
+
 
