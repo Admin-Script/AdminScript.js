@@ -66,7 +66,7 @@ let processCandidates = function(candidates,str,i){
 let matchIdentifier = function(str,i){
     let token = "";
     for(; i < str.length; i++){
-        if(str[i].match(/[a-zA-Z0-9]/)){
+        if(str[i].match(/[\$\_a-zA-Z0-9]/)){
             token += str[i];
         }else{
             break;
@@ -106,7 +106,7 @@ let matchOperator = function(str,i){
 };
 
 let comptoken = function(op1,op2){//true if right token wins out (has lower precedence value or is left associative)
-    console.log(op1,op2);
+    //console.log(op1,op2);
     let p1 = operators.precedenceTable[op1].precedence;
     let p2 = operators.precedenceTable[op2].precedence;
     if(p1 === p2){
@@ -135,17 +135,15 @@ let operatorExpr = function(str,i){
             //check if func operator is possible
             if(i < str.length && getChar(str,i).match(/\s/)){//function operator (space) confirmed
                 optoken = " ";
-                console.log("jackpot!!!!!");
                 [s,i] = consumeSpaces(str,i);
-                console.log(str[i]);
             }else{//end of operators
                 return [lefthand,i0];
             }
         }
         try{
-            if(optoken === " ")console.log("optoken",i,str[i]);
+            //if(optoken === " ")console.log("optoken",i,str[i]);
             [atom,i] = atomicExpr(str,i);
-            if(optoken === " ")console.log("atom",i,str[i],atom);
+            //if(optoken === " ")console.log("atom",i,str[i],atom);
         }catch(error){//definitely got something odd here, except if we hit spaces
             if(optoken === " "){
                 return [lefthand,i0];
@@ -186,7 +184,6 @@ let prefixExpr = function(str,i){
     let optoken,s,ast;
     [s,i] = consumeSpaces(str,i);
     [optoken,i] = prefixTrie.maxMatch(str,i);
-    console.log("prefix",optoken,i,str.slice(i-5,i+5));
     if(optoken === ""){
         return postfixExpr(str,i);//throw the sub expression does not contain prefix
     }
@@ -202,12 +199,9 @@ let postfixTrie = new TrieMatch("++ --".split(" "));
 let postfixExpr = function(str,i){
     let optoken,s,ast;
     [s,i] = consumeSpaces(str,i);
-    //console.log(trueAtomicExpr(str,i));
     [ast,i] = trueAtomicExpr(str,i);
-    //console.log(ast,i);
     [optoken,i] = postfixTrie.maxMatch(str,i);
     while(optoken !== ""){
-        console.log(optoken);
         ast = {
             type:"postfix",
             value:optoken,
@@ -230,6 +224,7 @@ let parenthesisExpr = function(str,i){
     if(str[i] !== ")"){
         err();//not a parenthesis expr
     }
+    console.log(ast);
     i++;
     return [{
         type:"parenthesis",
@@ -248,10 +243,13 @@ let funccallExpr = function(str,i){
     if(str[i] !== "("){
         err();//not a parenthesis expr
     }
+    i++;
+    console.log("yes!",i,str[i],str[i+1]);
     let arguments = [];
     while(true){
         try{
             [ast,i] = operatorExpr(str,i);
+            console.log(JSON.stringify(ast,null,4));
             [s,i] = consumeSpaces(str,i);
             if(str[i] === ","){
                 arguments.push(ast);
@@ -267,6 +265,8 @@ let funccallExpr = function(str,i){
         }
     }
     [s,i] = consumeSpaces(str,i);
+    console.log(arguments);
+    console.log("e!",i,str[i]);
     if(str[i] === ")"){
         i++;
         return [{
@@ -303,46 +303,6 @@ let trueAtomicExpr = function(str,i){
 
 let atomicExpr = prefixExpr;
 
-/*
-let prefixTrie = new TrieMatch("! ++ -- + -".split(" "));
-let postfixTrie = new TrieMatch("++ --".split(" "));
-let atomicExpr = function(str,i){
-    //first match 
-};*/
-
-//lambda((arguments),(expression))
-//
-/*let atomicExpr = function(str,i){
-    return processCandidates([
-        prefixExpr,
-        postfixExpr,// unary
-        parenthesisExpr,
-        funccallExpr,// includes the identity function, $()
-        valueExpr,
-        identifierExpr
-    ],str,i);
-};
-
-
-let trueAtomicExpr = function(str,i){
-    return processCandidates([
-        prefixExpr,
-        postfixExpr,// unary
-        funccallExpr,// includes the identity function, $()
-        parenthesisExpr,
-        valueExpr,
-        identifierExpr
-    ],str,i);
-};*/
-
-
-
-
-
-
-
-
-
 
 
 console.log(JSON.stringify(operatorExpr(`
@@ -354,6 +314,15 @@ console.log(JSON.stringify(operatorExpr(`
     line2 = a = b:c|d e + f g h 
     line3 && true
     # for more info, look at operators.js
+`,0)));
+
+
+console.log(JSON.stringify(operatorExpr(`
+    line1 = a $(b:(c*ww)) ++d:e++ # what
+`,0)));
+
+console.log(JSON.stringify(operatorExpr(`
+    ++i
 `,0)));
 
 
