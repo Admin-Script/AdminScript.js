@@ -1,3 +1,4 @@
+let TrieMatch = require("./triematch.js");
 let operators = require("./operators.js");
 
 
@@ -62,10 +63,7 @@ let processCandidates = function(candidates,str,i){
 //parser main
 
 
-let parseIdentifier = function(str,i){
-    if(!str[i].match(/[a-zA-Z]/)){
-        err();
-    }
+let matchIdentifier = function(str,i){
     let token = "";
     for(; i < str.length; i++){
         if(str[i].match(/[a-zA-Z0-9]/)){
@@ -77,24 +75,23 @@ let parseIdentifier = function(str,i){
     return [token,i];
 };
 
-let atomicExpr = parseIdentifier;
 
 
 //operator logic
 
 let matchOperator = function(str,i){
-    console.log("operator at position: ",i);
+    //console.log("operator at position: ",i);
     let optoken,s,newLine;
     [s,i] = consumeSpaces(str,i);
-    console.log(s,i);
+    //console.log(s,i);
     newLine ||= !!s.match(/\n/);
     
     [optoken,i] = operators.maxMatch(str,i);
-    console.log(optoken,i);
+    //console.log(optoken,i);
     
     [s,i] = consumeSpaces(str,i);
     newLine ||= !!s.match(/\n/);
-    console.log(s,i);
+    //console.log(s,i);
     
     if(optoken === ""){
         if(newLine){
@@ -117,6 +114,13 @@ let comptoken = function(op1,op2){//true if right token wins out (has lower prec
     return p1 > p2;
 };
 
+let getChar = function(str,i){
+    if(i < 0 || str.length <= i){
+        return "";
+    }
+    return str[i];
+};
+
 let operatorExpr = function(str,i){
     let lefthand,s;
     [s,i] = consumeSpaces(str,i);
@@ -127,7 +131,13 @@ let operatorExpr = function(str,i){
         try{
             [optoken,i] = matchOperator(str,i);//matches the spaces as well
         }catch(err){//end of the sequence
-            return [lefthand,i0];
+            //check if func operator is possible
+            if(getchar(str,i).match(/\s/)){//function operator (space) confirmed
+                optoken = " ";
+                [s,i] = consumeSpaces(str,i);
+            }else{//end of operators
+                return [lefthand,i0];
+            }
         }
         try{
             [atom,i] = atomicExpr(str,i);
@@ -158,23 +168,162 @@ let operatorExpr = function(str,i){
 
 
 
-//atomicExpr
+//Atomic Expression section
+//work flow
+// prefix -> postfix -> atomic
+
+
+let prefixTrie = new TrieMatch("! ++ -- + -".split(" "));
+let prefixExpr = function(str,i){
+    let optoken,s,ast;
+    [s,i] = consumeSpaces(str,i);
+    [optoken,i] = prefixTrie.maxMatch(str,i);
+    console.log(optoken,i);
+    if(optoken === ""){
+        return postfixExpr(str,i);//throw error since it's not prefix
+    }
+    [ast,i] = prefixExpr(str,i);
+    return {
+        type:"prefix",
+        value:optoken,
+        content:ast
+    };
+};
+
+let postfixTrie = new TrieMatch("++ --".split(" "));
+let postfixExpr = function(str,i){
+    let optoken,s,ast;
+    [s,i] = consumeSpaces(str,i);
+    [ast,i] = trueAtomicExpr(str,i);
+    [optoken,i] = postfixTrie.maxMatch(str,i);
+    while(optoken !== ""){
+        ast = {
+            type:"postfix",
+            value:optoken,
+            content:ast
+        }
+        [optoken,i] = postfixTrie.maxMatch(str,i);
+    }
+    return ast;
+};
+
+let parenthesisExpr = function(str,i){
+    let s,ast;
+    [s,i] = consumeSpaces(str,i);
+    if(str[i] !== "("){
+        err();//not a parenthesis expr
+    }
+    i++;//skipping the parenthesis
+    [ast,i] = operatorExpr(str,i);
+    [s,i] = consumeSpaces(str,i);
+    if(str[i] !== ")"){
+        err();//not a parenthesis expr
+    }
+    i++;
+    return {
+        type:"parenthesis",
+        content:ast
+    };
+};
+
+let funccallExpr = function(str,i){
+    let funcname,s,ast;
+    [s,i] = consumeSpaces(str,i);
+    [funcname,i] = matchIdentifier(str,i);
+    if(funcname === ""){
+        err();
+    }
+    [s,i] = consumeSpaces(str,i);
+    if(str[i] !== "("){
+        err();//not a parenthesis expr
+    }
+    let arguments = [];
+    while(true){
+        try{
+            [ast,i] = operatorExpr(str,i);
+            [s,i] = consumeSpaces(str,i);
+            if(str[i] === ","){
+                arguments.push(ast);
+                i++;
+            }else if(str[i] === ")"){
+                arguments.push(ast);
+                break;
+            }else{
+                break;
+            }
+        }catch(err){
+            break;
+        }
+    }
+    [s,i] = consumeSpaces(str,i);
+    if(str[i] === ")"){
+        i++;
+        return {
+            type:"functionCall",
+            arguments
+        };
+    }
+    err("Error while parsing a function statement");
+};
+
+let identifierExpr = function(str,i){
+    let idname,s;
+    [s,i] = consumeSpaces(str,i);
+    [idname,i] = matchIdentifier(str,i);
+    if(idname === ""){
+        err();
+    }
+    return {
+        type:"identifier",
+        value:idname
+    };
+};
+
+
+let trueAtomicExpr = function(str,i){
+    return processCandidates([
+        parenthesisExpr,
+        funccallExpr,// includes the identity function, $()
+        valueExpr,
+        identifierExpr
+    ],str,i);
+};
+
+
+let atomicExpr = prefixExpr;
 
 /*
+let prefixTrie = new TrieMatch("! ++ -- + -".split(" "));
+let postfixTrie = new TrieMatch("++ --".split(" "));
 let atomicExpr = function(str,i){
-    let ast;
-    [ast,i] = processCandidates([
-        operatorExpr,
-        funcExpr,
-        execExpr, // $()
-        atomicExpr//tokens, parenfunc etc
+    //first match 
+};*/
+
+//lambda((arguments),(expression))
+//
+/*let atomicExpr = function(str,i){
+    return processCandidates([
+        prefixExpr,
+        postfixExpr,// unary
+        parenthesisExpr,
+        funccallExpr,// includes the identity function, $()
+        valueExpr,
+        identifierExpr
     ],str,i);
-    return [{
-        type:"expr",
-        ast
-    },i];
 };
-*/
+
+
+let trueAtomicExpr = function(str,i){
+    return processCandidates([
+        prefixExpr,
+        postfixExpr,// unary
+        funccallExpr,// includes the identity function, $()
+        parenthesisExpr,
+        valueExpr,
+        identifierExpr
+    ],str,i);
+};*/
+
 
 
 
@@ -191,7 +340,7 @@ console.log(JSON.stringify(operatorExpr(`
     line1 = asdf * sa + a / b
     # equal signs are left associative, 
     # others are right associative
-    line2 = a = b:c|d!e 
+    line2 = a = b:c|d e+f g  
     line3 && true
     # for more info, look at operators.js
 `,0)));
