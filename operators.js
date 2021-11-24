@@ -62,6 +62,8 @@ NEWLINE    LEFT
 
 let operators = new TrieMatch(Object.keys(precedenceTable).filter(o=>o!=="\n"&&o!==" "));// \n is kinda treated specially
 
+console.log(precedenceTable);
+
 module.exports = {
     maxMatch:operators.maxMatch.bind(operators),
     precedenceTable

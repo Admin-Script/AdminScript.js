@@ -133,7 +133,7 @@ let operatorExpr = function(str,i){
             [optoken,i] = matchOperator(str,i);//matches the spaces as well
         }catch(err){//end of the sequence
             //check if func operator is possible
-            if(getChar(str,i).match(/\s/)){//function operator (space) confirmed
+            if(i < str.length && getChar(str,i).match(/\s/)){//function operator (space) confirmed
                 optoken = " ";
                 console.log("jackpot!!!!!");
                 [s,i] = consumeSpaces(str,i);
@@ -146,7 +146,10 @@ let operatorExpr = function(str,i){
             if(optoken === " ")console.log("optoken",i,str[i]);
             [atom,i] = atomicExpr(str,i);
             if(optoken === " ")console.log("atom",i,str[i],atom);
-        }catch(error){//definitely got something odd here
+        }catch(error){//definitely got something odd here, except if we hit spaces
+            if(optoken === " "){
+                return [lefthand,i0];
+            }
             console.log(`"${optoken}"`,str.length,i);
             err("Expected atomic expression, but got something else instead. Are you chaining operaotrs?");
         }
@@ -348,7 +351,7 @@ console.log(JSON.stringify(operatorExpr(`
     line1 = asdf * sa + a / b
     # equal signs are left associative, 
     # others are right associative
-    line2 = a = b:c|d e+f g  
+    line2 = a = b:c|d e + f g h 
     line3 && true
     # for more info, look at operators.js
 `,0)));
