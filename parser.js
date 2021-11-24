@@ -145,6 +145,7 @@ let operatorExpr = function(str,i){
         try{
             if(optoken === " ")console.log("optoken",i,str[i]);
             [atom,i] = atomicExpr(str,i);
+            if(optoken === " ")console.log("atom",i,str[i],atom);
         }catch(error){//definitely got something odd here
             console.log(`"${optoken}"`,str.length,i);
             err("Expected atomic expression, but got something else instead. Are you chaining operaotrs?");
