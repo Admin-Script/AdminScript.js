@@ -106,6 +106,7 @@ let matchOperator = function(str,i){
 };
 
 let comptoken = function(op1,op2){//true if right token wins out (has lower precedence value or is left associative)
+    console.log(op1,op2);
     let p1 = operators.precedenceTable[op1].precedence;
     let p2 = operators.precedenceTable[op2].precedence;
     if(p1 === p2){
@@ -132,14 +133,17 @@ let operatorExpr = function(str,i){
             [optoken,i] = matchOperator(str,i);//matches the spaces as well
         }catch(err){//end of the sequence
             //check if func operator is possible
-            if(getchar(str,i).match(/\s/)){//function operator (space) confirmed
+            if(getChar(str,i).match(/\s/)){//function operator (space) confirmed
                 optoken = " ";
+                console.log("jackpot!!!!!");
                 [s,i] = consumeSpaces(str,i);
+                console.log(str[i]);
             }else{//end of operators
                 return [lefthand,i0];
             }
         }
         try{
+            if(optoken === " ")console.log("optoken",i,str[i]);
             [atom,i] = atomicExpr(str,i);
         }catch(error){//definitely got something odd here
             console.log(`"${optoken}"`,str.length,i);
@@ -178,33 +182,36 @@ let prefixExpr = function(str,i){
     let optoken,s,ast;
     [s,i] = consumeSpaces(str,i);
     [optoken,i] = prefixTrie.maxMatch(str,i);
-    console.log(optoken,i);
+    console.log("prefix",optoken,i,str.slice(i-5,i+5));
     if(optoken === ""){
-        return postfixExpr(str,i);//throw error since it's not prefix
+        return postfixExpr(str,i);//throw the sub expression does not contain prefix
     }
     [ast,i] = prefixExpr(str,i);
-    return {
+    return [{
         type:"prefix",
         value:optoken,
         content:ast
-    };
+    },i];
 };
 
 let postfixTrie = new TrieMatch("++ --".split(" "));
 let postfixExpr = function(str,i){
     let optoken,s,ast;
     [s,i] = consumeSpaces(str,i);
+    //console.log(trueAtomicExpr(str,i));
     [ast,i] = trueAtomicExpr(str,i);
+    //console.log(ast,i);
     [optoken,i] = postfixTrie.maxMatch(str,i);
     while(optoken !== ""){
+        console.log(optoken);
         ast = {
             type:"postfix",
             value:optoken,
             content:ast
-        }
+        };
         [optoken,i] = postfixTrie.maxMatch(str,i);
     }
-    return ast;
+    return [ast,i];
 };
 
 let parenthesisExpr = function(str,i){
@@ -220,10 +227,10 @@ let parenthesisExpr = function(str,i){
         err();//not a parenthesis expr
     }
     i++;
-    return {
+    return [{
         type:"parenthesis",
         content:ast
-    };
+    },i];
 };
 
 let funccallExpr = function(str,i){
@@ -258,10 +265,10 @@ let funccallExpr = function(str,i){
     [s,i] = consumeSpaces(str,i);
     if(str[i] === ")"){
         i++;
-        return {
+        return [{
             type:"functionCall",
             arguments
-        };
+        },i];
     }
     err("Error while parsing a function statement");
 };
@@ -273,10 +280,10 @@ let identifierExpr = function(str,i){
     if(idname === ""){
         err();
     }
-    return {
+    return [{
         type:"identifier",
         value:idname
-    };
+    },i];
 };
 
 
@@ -284,7 +291,7 @@ let trueAtomicExpr = function(str,i){
     return processCandidates([
         parenthesisExpr,
         funccallExpr,// includes the identity function, $()
-        valueExpr,
+        //valueExpr,
         identifierExpr
     ],str,i);
 };
