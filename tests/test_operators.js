@@ -257,3 +257,35 @@ console.log(JSON.stringify(operatorExpr(`
 }
 */
 
+
+
+
+
+
+
+
+
+
+
+
+/*
+?select user [JoinedAt > -3 hours] | ban
+?select message : time > -3 hours : user == "sussyBaka" | delete
+>> 135 messages will be deleted. if you are sure, type ?commit
+
+?select message [time > -3 hours] [user == "sussyBaka"] | delete
+
+?select message time > -3 hours  user == "sussyBaka" | delete
+
+?msgs => select message : time > -3 hours : user == "sussyBaka"
+?msgs | length | echo
+>> 135
+?msgs | echo
+>> ...displays all 135 messages
+?msgs | delete
+>> 135 messages will be deleted. if you are sure, type ?commit
+?commit
+>>message deleted
+?clear log
+*/
+

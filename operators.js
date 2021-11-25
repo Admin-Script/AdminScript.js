@@ -6,6 +6,8 @@ let TrieMatch = require("./triematch.js");
 
 
 let precedenceTable = `
+.         LEFT
+
 ^
 
 *

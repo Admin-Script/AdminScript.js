@@ -5,11 +5,7 @@ let operators = require("./operators.js");
 // util functions
 
 let err = function(str){
-    if(str){
-        throw new Error(str);
-    }else{
-        throw new Error("Unexpected token");
-    }
+   throw new Error(str ? str : "Unexpected token");
 };
 
 
@@ -318,11 +314,12 @@ console.log(JSON.stringify(operatorExpr(`
 
 
 console.log(JSON.stringify(operatorExpr(`
+    line1 = a $(b:(c*ww)) (++d):e++ # works
     line1 = a $(b:(c*ww)) ++d:e++ # what
 `,0)));
 
 console.log(JSON.stringify(operatorExpr(`
-    ++i
+    ++i.what
 `,0)));
 
 
