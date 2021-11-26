@@ -1,5 +1,7 @@
 let parse = require("./parser.js");
 
 module.exports = {
-    parse
+    parse:function(str){
+        parse(str,0);
+    }
 };
