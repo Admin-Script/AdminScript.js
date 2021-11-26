@@ -299,8 +299,9 @@ let trueAtomicExpr = function(str,i){
 
 let atomicExpr = prefixExpr;
 
+module.exports = operatorExpr;
 
-
+/*
 console.log(JSON.stringify(operatorExpr(`
     # test code
     # comments will be ignored
@@ -321,7 +322,7 @@ console.log(JSON.stringify(operatorExpr(`
 console.log(JSON.stringify(operatorExpr(`
     ++i.what
 `,0)));
-
+*/
 
 
 

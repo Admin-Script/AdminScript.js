@@ -1,0 +1,29 @@
+{
+  "name": "adminscript",
+  "version": "1.0.0",
+  "description": "a sinple language for automating community moderation tasks",
+  "main": "main.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Admin-Script/AdminScript.js.git"
+  },
+  "keywords": [
+    "adminscript",
+    "admin_script",
+    "admin",
+    "script",
+    "moderation"
+  ],
+  "author": "martian17",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Admin-Script/AdminScript.js/issues"
+  },
+  "homepage": "https://github.com/Admin-Script/AdminScript.js#readme"
+}
