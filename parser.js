@@ -267,6 +267,7 @@ let funccallExpr = function(str,i){
         i++;
         return [{
             type:"functionCall",
+            name:funcname,
             arguments
         },i];
     }
