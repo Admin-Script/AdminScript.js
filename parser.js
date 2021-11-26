@@ -324,9 +324,8 @@ console.log(JSON.stringify(operatorExpr(`
 `,0)));
 */
 
-/*
+
 console.log(JSON.stringify(operatorExpr(`
-    a+b
-`,0)));*/
+    a+b`,0)));
 
 
