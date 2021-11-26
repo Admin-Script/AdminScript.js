@@ -38,8 +38,12 @@ class TrieMatch{
         let chars = this.chars;
         let char = str[i];
         if(char in chars){
-            let result;
-            return chars[char].maxMatch(str,i+1);
+            let result = chars[char].maxMatch(str,i+1);
+            if(result[0] === ""){
+                return ["",i];
+            }else{
+                return result;
+            }
         }else{
             return [this.value || "",i];
         }
