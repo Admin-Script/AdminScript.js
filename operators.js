@@ -3,11 +3,9 @@ let TrieMatch = require("./triematch.js");
 //preparing the precedence table
 
 
-
+//.         LEFT
 
 let precedenceTable = `
-.         LEFT
-
 ^
 
 *
