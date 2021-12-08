@@ -16,6 +16,7 @@ let TYPES;
 
 
 let objectLiteralExpr = function(str,i){
+    //doubles as destructurung assignment notation
     if(str[i] !== "{"){
         err();
     }
@@ -33,9 +34,18 @@ let objectLiteralExpr = function(str,i){
             stringLiteralExpr
         ],str,i);
         [s,i] = consumeSpaces(str,i);
+        let value;
         if(str[i] === ":"){
+            i++;
+            [s,i] = consumeSpaces(str,i);
             [value,i] = operatorExpr(str,i);
             result[index[1]] = value;
+            [s,i] = consumeSpaces(str,i);
+        }else if(str[i] === "="){
+            i++;
+            [s,i] = consumeSpaces(str,i);
+            [value,i] = operatorExpr(str,i);
+            result[index[1]] = [TYPES.BINARY.ID,i,"=",index,value];
             [s,i] = consumeSpaces(str,i);
         }else{
             result[index[1]] = null;//destructuring assignment
@@ -68,9 +78,23 @@ let arrayLiteralExpr = function(str,i){
         return [[TYPES.ARRLIT.ID,i,result],i];
     }
     while(i < str.length){
+        while(str[i] === ","){//empty space notation
+            result.push(null);
+            i++;
+            [s,i] = consumeSpaces(str,i);
+        }
+        let spreadFlag = false;
+        if(str.slice(i,i+3) === "..."){
+            spreadFlag = true;
+            i += 3;
+        }
         let value;
         [value,i] = operatorExpr(str,i);
-        result.push(value);
+        if(spreadFlag){
+            result.push([TYPES.UNARY.ID,i,value,"..."]);
+        }else{
+            result.push(value);
+        }
         if(str[i] === ","){
             i++;
             [s,i] = consumeSpaces(str,i);
