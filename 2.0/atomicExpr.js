@@ -159,7 +159,7 @@ let numberExpr = function(str,i){
     if(str[i] === "0"){
         digitStr += str[i];
         i++;
-    }else if(str[i].match(/[1-9]/)){
+    }else if(getChar(str,i).match(/[1-9]/)){//overflow protection
         digitStr += str[i];
         i++;
         while(i < str.length){
@@ -177,7 +177,7 @@ let numberExpr = function(str,i){
     let fracStr = "";
     if(str[i] === "."){
         i++;
-        if(!str[i].match(/[0-9]/)){
+        if(!getChar(str,i).match(/[0-9]/)){
             err();
         }
         while(i < str.length){
@@ -200,7 +200,7 @@ let numberExpr = function(str,i){
             i++;
             expSign = "-";
         }
-        if(!str[i].match(/[0-9]/)){
+        if(!getChar(str,i).match(/[0-9]/)){
             err();
         }
         while(i < str.length){
@@ -317,8 +317,23 @@ let parenthesisExpr = function(str,i){
     return [TYPES.PAREN.ID,i,contents];
 };
 
-let trueAtomicExpr;
-let prefixExpr;
+
+
+let trueAtomicExpr = function(str,i){
+    return processCandidates([
+        objectLiteralExpr,
+        arrayLiteralExpr,
+        stringLiteralExpr,
+        identifierExpr,
+        numberExpr,
+        funcdefExpr,
+        parenthesisExpr
+    ],str,i);
+};
+
+let prefixExpr = function(str,i){
+    
+};
 let postfixExpr;
 let memberAccessExpr;
 let funccallExpr;
@@ -326,16 +341,6 @@ let operatorExpr;
 
 
 
-
-trueAtomicExpr = function(str,i){
-    return processCandidates([
-        objectLiteralExpr,
-        arrayLiteralExpr,
-        identifierExpr,
-        numberExpr,
-        funcdefExpr
-    ],str,i);
-};
 
 
 
