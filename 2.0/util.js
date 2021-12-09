@@ -96,7 +96,8 @@ const TYPES = {
         BODY:3
     },
     FUNCCALL:{
-        ARGS:2
+        BODY:2
+        ARGS:3
     },
     UNARY:{
         //value:2,
