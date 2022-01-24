@@ -18,4 +18,6 @@
     </a>
 </p>
 
+## About
+
 AdminScript.js is an implementation of https://admin-script.github.io/specification/
